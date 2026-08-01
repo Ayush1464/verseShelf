@@ -1,0 +1,61 @@
+{
+  "nav": {
+    "home": "Home",
+    "browse": "Browse Books",
+    "login": "Login",
+    "register": "Register",
+    "dashboard": "Dashboard",
+    "bookshelf": "My Bookshelf",
+    "history": "Purchase History",
+    "profile": "Profile Settings",
+    "logout": "Log Out"
+  },
+  "browse": {
+    "title": "The Digital Shelf",
+    "subtitle": "Discover and purchase poetry collections directly supporting independent writers.",
+    "search": "Filter books by title/content...",
+    "category": "All Categories",
+    "no_books": "No Books Found",
+    "reset": "Reset Catalog",
+    "details": "Details",
+    "price": "Price"
+  },
+  "dashboard": {
+    "welcome": "Welcome back",
+    "bookshelf_desc": "Your digital poetry bookshelf contains {{count}} collection.",
+    "bookshelf_desc_plural": "Your digital poetry bookshelf contains {{count}} collections.",
+    "find_poetry": "Find More Poetry",
+    "purchased_books": "Purchased Books",
+    "recent_purchases": "Recent Purchases",
+    "account_tier": "Account Tier",
+    "recent_purchase": "Recent Purchase",
+    "open_reader": "Open Reader Shelf",
+    "no_books_bought": "You haven't bought any books yet.",
+    "explore_poetry": "Explore New Poetry",
+    "view_catalog": "View Catalog"
+  },
+  "membership": {
+    "title": "Creator Membership",
+    "desc": "Join the VerseShelf writing guild. Pay a small, one-time fee to publish unlimited collections, track detailed payout receipts, and keep 80% royalties.",
+    "privileges": "Author Privileges Included:",
+    "p1": "Upload unlimited poetry booklets (PDF manuscripts)",
+    "p2": "Get direct payouts to your Bank Account or UPI ID",
+    "p3": "See platform sales commissions on every purchase",
+    "unlock": "Unlock Creator Desk (Pay ₹500)",
+    "processing": "Processing Payment...",
+    "secure": "Secure payments powered by Razorpay. One-time activation fee."
+  },
+  "landing": {
+    "tagline": "Independent Poetry Marketplace",
+    "hero_title_1": "Where poetry meets its",
+    "hero_title_patrons": "patrons",
+    "hero_desc": "VerseShelf is a premium digital bookstore empowering poets and writers to publish their manuscripts and sell PDFs directly to readers worldwide.",
+    "explore_button": "Explore the Shelf",
+    "publish_button": "Publish Your Manuscript",
+    "split_label": "Author Split",
+    "readers_label": "Poetry Lovers",
+    "sold_label": "Ebooks Sold",
+    "featured_classic": "Featured Classic",
+    "latest_anthology": "Latest anthology"
+  }
+}

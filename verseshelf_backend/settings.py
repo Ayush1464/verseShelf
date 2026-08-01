@@ -270,8 +270,10 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 # ==========================================================
 
 CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
     "http://localhost:5173",
-    "https://YOUR-VERCEL-APP.vercel.app",
+    "http://127.0.0.1:3000",
+    "https://verseshelf.onrender.com",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -281,7 +283,7 @@ CORS_ALLOW_CREDENTIALS = True
 # ==========================================================
 
 CSRF_TRUSTED_ORIGINS = [
-    "https://YOUR-VERCEL-APP.vercel.app",
+    "https://verseshelf.onrender.com",
 ]
 
 # ==========================================================

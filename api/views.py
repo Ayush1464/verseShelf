@@ -26,10 +26,19 @@ def login_view(req):
     password = req.data.get('password')
     role = req.data.get('role', 'reader')
     
-    # Standard mock password login helper
+    # Check if a user with this email or username already exists in the system
     user = User.objects.filter(email=email, role=role).first()
+    
     if not user:
-        # Auto-create user for ease of evaluation if email contains role keywords
+        # Check if the email is registered under a different role
+        existing_user = User.objects.filter(email=email).first() or User.objects.filter(username=email).first()
+        if existing_user:
+            return Response(
+                {"detail": f"This email is already registered as a '{existing_user.role}'. Please select the correct role tab to log in."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+            
+        # If the user doesn't exist at all, auto-create them for ease of evaluation
         username = email
         user = User.objects.create_user(
             username=username,

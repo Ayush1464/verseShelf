@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const API = axios.create({
-  baseURL: "https://verseshelf-backend.onrender.com/api",
+  baseURL: "https://verseshelf.onrender.com/api",
   headers: {
     "Content-Type": "application/json",
   },

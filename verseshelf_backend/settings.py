@@ -138,6 +138,16 @@ ALLOWED_HOSTS = [
     ".onrender.com",
 ]
 
+CORS_ALLOWED_ORIGINS = [
+    "https://verse-shelf-kfx9zlz9v-ayush-mahapatra-s-projects.vercel.app",
+]
+
+CSRF_TRUSTED_ORIGINS = [
+    "https://verse-shelf-kfx9zlz9v-ayush-mahapatra-s-projects.vercel.app",
+]
+
+CORS_ALLOW_CREDENTIALS = True
+
 # ==========================================================
 # Applications
 # ==========================================================
@@ -162,9 +172,10 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "corsheaders.middleware.CorsMiddleware",
+
+    "whitenoise.middleware.WhiteNoiseMiddleware",
 
     "django.contrib.sessions.middleware.SessionMiddleware",
     "django.middleware.common.CommonMiddleware",

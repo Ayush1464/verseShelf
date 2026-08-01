@@ -165,9 +165,8 @@ INSTALLED_APPS = [
 # ==========================================================
 
 MIDDLEWARE = [
-    "django.middleware.security.SecurityMiddleware",
-
     "corsheaders.middleware.CorsMiddleware",
+    "django.middleware.security.SecurityMiddleware",
 
     "whitenoise.middleware.WhiteNoiseMiddleware",
 

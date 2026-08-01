@@ -138,15 +138,9 @@ ALLOWED_HOSTS = [
     ".onrender.com",
 ]
 
-CORS_ALLOWED_ORIGINS = [
-    "https://verse-shelf-kfx9zlz9v-ayush-mahapatra-s-projects.vercel.app",
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    "https://verse-shelf-kfx9zlz9v-ayush-mahapatra-s-projects.vercel.app",
-]
-
-CORS_ALLOW_CREDENTIALS = True
+# ==========================================================
+# Applications
+# ==========================================================
 
 # ==========================================================
 # Applications
@@ -285,6 +279,7 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:3000",
     "https://verseshelf.onrender.com",
+    "https://verse-shelf-kfx9zlz9v-ayush-mahapatra-s-projects.vercel.app",
 ]
 
 CORS_ALLOW_CREDENTIALS = True
@@ -295,6 +290,7 @@ CORS_ALLOW_CREDENTIALS = True
 
 CSRF_TRUSTED_ORIGINS = [
     "https://verseshelf.onrender.com",
+    "https://verse-shelf-kfx9zlz9v-ayush-mahapatra-s-projects.vercel.app",
 ]
 
 # ==========================================================

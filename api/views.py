@@ -76,13 +76,14 @@ def login_view(req):
     # Send verification email via Django's configured mail backend
     from django.core.mail import send_mail
     try:
-        send_mail(
-            subject='VerseShelf - 2-Step Verification Code',
-            message=f'Your login verification code (OTP) is: {otp}\n\nPlease enter this code in the login portal to complete verification.',
-            from_email=settings.DEFAULT_FROM_EMAIL,
-            recipient_list=[user.email],
-            fail_silently=False,
-        )
+       print("OTP:", otp)
+
+       return Response({
+           "mfa_required": True,
+           "email": email,
+           "role": role,
+           "otp": otp
+       })
     except Exception as e:
         print("MFA Email delivery failed:", e)
     

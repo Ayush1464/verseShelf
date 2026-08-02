@@ -101,6 +101,7 @@
 
 # # CORS Config
 # CORS_ALLOW_ALL_ORIGINS = True
+# X_FRAME_OPTIONS = 'ALLOWALL'
 
 # # Razorpay credentials - Replace these with your active test keys
 # RAZORPAY_KEY_ID = "rzp_test_TGrXu0uHn3ZfMj"
@@ -109,6 +110,15 @@
 # # Media Configuration for Ebooks
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = BASE_DIR / 'media'
+
+# # Email Configuration (Uses console backend for local testing, can be easily changed to SMTP)
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+# EMAIL_HOST = 'smtp.gmail.com'
+# EMAIL_PORT = 587
+# EMAIL_USE_TLS = True
+# EMAIL_HOST_USER = 'ayushmahapatra1464@gmail.com'
+# EMAIL_HOST_PASSWORD = 'mtebchtqasrnielu'
+# DEFAULT_FROM_EMAIL = 'VerseShelf Security <security@verseshelf.com>'
 
 
 
@@ -159,6 +169,8 @@ INSTALLED_APPS = [
 
     "api.apps.ApiConfig",
 ]
+
+X_FRAME_OPTIONS = 'ALLOWALL'
 
 # ==========================================================
 # Middleware
@@ -293,3 +305,12 @@ CSRF_TRUSTED_ORIGINS = [
 RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
+
+# Email Configuration (Uses console backend for local testing, can be easily changed to SMTP)
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+EMAIL_HOST_USER = 'ayushmahapatra1464@gmail.com'
+EMAIL_HOST_PASSWORD = 'mtebchtqasrnielu'
+DEFAULT_FROM_EMAIL = 'VerseShelf Security <security@verseshelf.com>'

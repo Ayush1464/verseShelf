@@ -17,10 +17,18 @@ except Exception as e:
     print("Razorpay initialization error:", e)
     razor_client = None
 
+from rest_framework.decorators import throttle_classes
+from rest_framework.throttling import AnonRateThrottle
+import random
+
+class AuthAnonRateThrottle(AnonRateThrottle):
+    rate = '5/minute'
+
 # --- AUTH VIEWS ---
 
 @csrf_exempt
 @api_view(['POST'])
+@throttle_classes([AuthAnonRateThrottle])
 def login_view(req):
     email = req.data.get('email')
     password = req.data.get('password')
@@ -55,12 +63,60 @@ def login_view(req):
             user.bio = "Poet publishing on VerseShelf"
             user.bank_details = "HDFC Bank A/C ending in 8892"
         user.save()
+    else:
+        # Validate password for existing user
+        if not user.check_password(password):
+            return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
         
+    # Generate 6-digit OTP code for MFA simulation
+    otp = str(random.randint(100000, 999999))
+    user.mfa_code = otp
+    user.save()
+    
+    # Send verification email via Django's configured mail backend
+    from django.core.mail import send_mail
+    try:
+        send_mail(
+            subject='VerseShelf - 2-Step Verification Code',
+            message=f'Your login verification code (OTP) is: {otp}\n\nPlease enter this code in the login portal to complete verification.',
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[user.email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print("MFA Email delivery failed:", e)
+    
+    return Response({
+        "mfa_required": True,
+        "email": email,
+        "role": role
+    })
+
+@csrf_exempt
+@api_view(['POST'])
+@throttle_classes([AuthAnonRateThrottle])
+def verify_otp_view(req):
+    email = req.data.get('email')
+    role = req.data.get('role', 'reader')
+    otp = req.data.get('otp')
+    
+    user = User.objects.filter(email=email, role=role).first()
+    if not user:
+        return Response({"error": "User not found"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    if not user.mfa_code or user.mfa_code != otp:
+        return Response({"error": "Invalid verification code"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    # Clear the OTP code after verification
+    user.mfa_code = ""
+    user.save()
+    
     serializer = UserSerializer(user)
     return Response(serializer.data)
 
 @csrf_exempt
 @api_view(['POST'])
+@throttle_classes([AuthAnonRateThrottle])
 def register_view(req):
     name = req.data.get('name')
     email = req.data.get('email')
@@ -71,7 +127,7 @@ def register_view(req):
         return Response({"error": "User with this email already exists"}, status=status.HTTP_400_BAD_REQUEST)
         
     username = email
-    is_member = False if role == 'author' else True
+    is_member = False if role in ['author', 'publisher'] else True
     user = User.objects.create_user(
         username=username,
         email=email,
@@ -94,13 +150,17 @@ def update_profile(req):
     user.email = req.data.get('email', user.email)
     user.avatar = req.data.get('avatar', user.avatar)
     
-    if user.role == 'author':
+    avatar_image = req.FILES.get('avatarImage')
+    if avatar_image:
+        user.avatar_image = avatar_image
+        
+    if user.role in ['author', 'publisher']:
         user.bio = req.data.get('bio', user.bio)
         user.bank_details = req.data.get('bankDetails', user.bank_details)
         user.whatsapp_number = req.data.get('whatsappNumber', user.whatsapp_number)
         
     user.save()
-    serializer = UserSerializer(user)
+    serializer = UserSerializer(user, context={'request': req})
     return Response(serializer.data)
 
 
@@ -122,11 +182,78 @@ def settings_view(req):
 
 # --- BOOKS VIEWS ---
 
+def validate_and_sanitize_pdf(pdf_file):
+    """
+    Validates that the file is a secure PDF.
+    1. Checks the MIME-type from Django file properties.
+    2. Validates the magic number (starts with %PDF-).
+    3. Scans the file contents for embedded JavaScript or active PDF elements (like /JS, /JavaScript, /AA, /OpenAction).
+    """
+    # 1. MIME-type check from Django file headers
+    if getattr(pdf_file, 'content_type', '') != 'application/pdf':
+        return False, "Invalid MIME-type. Only application/pdf is allowed."
+        
+    # Read the file content
+    try:
+        # Save current file position to restore later
+        original_pos = pdf_file.tell()
+        pdf_file.seek(0)
+        file_bytes = pdf_file.read()
+        pdf_file.seek(original_pos)  # Restore position
+    except Exception as e:
+        return False, f"Failed to read file content: {str(e)}"
+
+    # 2. Magic number validation
+    if not file_bytes.startswith(b'%PDF'):
+        return False, "Invalid file format. The file is not a valid PDF document."
+
+    # 3. Scan for executable payloads / JavaScript actions in PDF objects
+    suspicious_patterns = [
+        b'/JS',
+        b'/JavaScript',
+        b'/AA',
+        b'/OpenAction',
+        b'/Launch'
+    ]
+
+    for pattern in suspicious_patterns:
+        if pattern in file_bytes:
+            return False, f"Security violation: Suspicious active PDF content detected ({pattern.decode('utf-8')})."
+
+    return True, None
+
+
+def validate_cover_image(image_file):
+    """
+    Strictly validates that the uploaded cover image is a safe JPEG or PNG image.
+    """
+    content_type = getattr(image_file, 'content_type', '')
+    if content_type not in ['image/jpeg', 'image/png']:
+        return False, "Invalid cover image MIME-type. Only JPEG and PNG are allowed."
+
+    try:
+        original_pos = image_file.tell()
+        image_file.seek(0)
+        file_bytes = image_file.read()
+        image_file.seek(original_pos)
+    except Exception as e:
+        return False, f"Failed to read image file content: {str(e)}"
+
+    # Validate magic numbers
+    is_jpeg = file_bytes.startswith(b'\xff\xd8\xff')
+    is_png = file_bytes.startswith(b'\x89PNG\r\n\x1a\n')
+
+    if not (is_jpeg or is_png):
+        return False, "Invalid image format. The file is not a valid JPEG or PNG image."
+
+    return True, None
+
+
 @api_view(['GET', 'POST'])
 def books_list(req):
     if req.method == 'GET':
         books = Book.objects.all()
-        serializer = BookSerializer(books, many=True)
+        serializer = BookSerializer(books, many=True, context={'request': req})
         return Response(serializer.data)
         
     elif req.method == 'POST':
@@ -141,11 +268,31 @@ def books_list(req):
         except Exception:
             preview_pages = []
 
+        # Validate PDF File
+        pdf_file = req.FILES.get('pdfFile')
+        if pdf_file and not isinstance(pdf_file, str):
+            is_valid, err_msg = validate_and_sanitize_pdf(pdf_file)
+            if not is_valid:
+                return Response({"error": err_msg}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Validate Cover Image File
+        cover_image = req.FILES.get('coverImage')
+        if cover_image and not isinstance(cover_image, str):
+            is_valid, err_msg = validate_cover_image(cover_image)
+            if not is_valid:
+                return Response({"error": err_msg}, status=status.HTTP_400_BAD_REQUEST)
+
+        physical_price_val = req.data.get('physicalPrice')
+        physical_price = float(physical_price_val) if physical_price_val else None
+        writer_name = req.data.get('writerName', '')
+
         book = Book.objects.create(
             title=req.data.get('title'),
             author=author,
+            writer_name=writer_name,
             category=req.data.get('category'),
             price=float(req.data.get('price', 150)),
+            physical_price=physical_price,
             description=req.data.get('description'),
             cover_color=req.data.get('coverColor', 'from-teal-800 to-emerald-950'),
             preview_pages=preview_pages,
@@ -155,7 +302,7 @@ def books_list(req):
             cover_image=req.FILES.get('coverImage') or req.data.get('coverImage')
         )
         
-        serializer = BookSerializer(book)
+        serializer = BookSerializer(book, context={'request': req})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 @api_view(['PUT'])
@@ -163,7 +310,7 @@ def approve_book(req, pk):
     book = get_object_or_404(Book, pk=pk)
     book.approved = True
     book.save()
-    serializer = BookSerializer(book)
+    serializer = BookSerializer(book, context={'request': req})
     return Response(serializer.data)
 
 @api_view(['DELETE'])
@@ -180,11 +327,22 @@ def delete_book(req, pk):
 def create_razorpay_order(req):
     book_id = req.data.get('bookId')
     reader_id = req.data.get('readerId')
+    is_physical = req.data.get('isPhysical', False)
+    shipping_address = req.data.get('shippingAddress', '')
     
     book = get_object_or_404(Book, id=book_id)
     reader = get_object_or_404(User, id=reader_id)
     
-    amount_in_paise = int(book.price * 100)
+    # Dynamic physical book pricing (Author custom physical price OR Ebook price + global platform surcharge)
+    setting, _ = PlatformSetting.objects.get_or_create(id=1)
+    price = book.price
+    if is_physical:
+        if book.physical_price is not None:
+            price = book.physical_price
+        else:
+            price = book.price + setting.physical_surcharge
+
+    amount_in_paise = int(price * 100)
     
     # Fallback order id if Razorpay credentials are dummy placeholders
     razorpay_order_id = f"order_mock_{status.HTTP_200_OK}_{int(status.HTTP_200_OK * 1.5)}"
@@ -203,18 +361,20 @@ def create_razorpay_order(req):
 
     # Get active commission settings
     setting, _ = PlatformSetting.objects.get_or_create(id=1)
-    commission = round((book.price * setting.commission_rate) / 100, 2)
-    earnings = book.price - commission
+    commission = round((price * setting.commission_rate) / 100, 2)
+    earnings = price - commission
 
     # Create local pending order record
     order = Order.objects.create(
         book=book,
         reader=reader,
-        price=book.price,
+        price=price,
         commission=commission,
         earnings=earnings,
         status='Pending',
-        razorpay_order_id=razorpay_order_id
+        razorpay_order_id=razorpay_order_id,
+        is_physical=is_physical,
+        shipping_address=shipping_address
     )
 
     return Response({
@@ -289,6 +449,18 @@ def authors_list(req):
     serializer = UserSerializer(authors, many=True)
     return Response(serializer.data)
 
+@api_view(['GET'])
+def publishers_list(req):
+    publishers = User.objects.filter(role='publisher').order_by('-id')
+    serializer = UserSerializer(publishers, many=True)
+    return Response(serializer.data)
+
+@api_view(['GET'])
+def author_detail(req, pk):
+    author = get_object_or_404(User, id=pk, role='author')
+    serializer = UserSerializer(author, context={'request': req})
+    return Response(serializer.data)
+
 
 # --- WITHDRAWALS VIEWS ---
 
@@ -335,7 +507,7 @@ def approve_withdrawal(req, pk):
 def create_membership_order(req):
     user_id = req.data.get('userId')
     user = get_object_or_404(User, id=user_id)
-    fee_amount = 500
+    fee_amount = 3000 if user.role == 'publisher' else 500
     
     if razor_client is None:
         mock_order_id = f"order_mem_{user.id}_mock"

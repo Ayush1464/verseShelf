@@ -5,17 +5,20 @@ class User(AbstractUser):
     ROLE_CHOICES = (
         ('reader', 'Reader'),
         ('author', 'Author'),
+        ('publisher', 'Publisher'),
         ('admin', 'Admin'),
     )
     name = models.CharField(max_length=150, blank=True, default="")
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='reader')
     avatar = models.URLField(max_length=500, blank=True, null=True)
+    avatar_image = models.ImageField(upload_to='avatars/', null=True, blank=True)
     bio = models.TextField(blank=True, default="")
     balance = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     total_earnings = models.DecimalField(max_digits=10, decimal_places=2, default=0.00)
     bank_details = models.TextField(blank=True, default="")
     is_member = models.BooleanField(default=True)
     whatsapp_number = models.CharField(max_length=20, blank=True, default="")
+    mfa_code = models.CharField(max_length=6, blank=True, default="")
 
     def __str__(self):
         return f"{self.username} ({self.role})"
@@ -35,6 +38,8 @@ class Book(models.Model):
     pages_count = models.IntegerField(default=50)
     pdf_file = models.FileField(upload_to='books/pdfs/', null=True, blank=True)
     cover_image = models.FileField(upload_to='books/covers/', null=True, blank=True)
+    physical_price = models.DecimalField(max_digits=8, decimal_places=2, null=True, blank=True)
+    writer_name = models.CharField(max_length=255, blank=True, default="")
 
     def __str__(self):
         return self.title
@@ -55,6 +60,8 @@ class Order(models.Model):
     razorpay_order_id = models.CharField(max_length=100, unique=True, null=True, blank=True)
     razorpay_payment_id = models.CharField(max_length=100, null=True, blank=True)
     razorpay_signature = models.CharField(max_length=255, null=True, blank=True)
+    is_physical = models.BooleanField(default=False)
+    shipping_address = models.TextField(blank=True, default="")
 
     def __str__(self):
         return f"Order {self.id} - {self.book.title} ({self.status})"
@@ -75,6 +82,7 @@ class WithdrawalRequest(models.Model):
 
 class PlatformSetting(models.Model):
     commission_rate = models.IntegerField(default=20)
+    physical_surcharge = models.DecimalField(max_digits=8, decimal_places=2, default=150.00)
 
     def __str__(self):
         return f"Commission Setting - {self.commission_rate}%"

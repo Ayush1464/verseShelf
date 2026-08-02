@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useAppState } from '../../context/AppStateContext';
 import { useAuth } from '../../context/AuthContext';
 import BookCover from '../../components/book/BookCover';
+import PdfReader from '../../components/book/PdfReader';
 import { FiStar, FiChevronLeft, FiChevronRight, FiLock, FiBookOpen, FiX, FiMoon, FiSun } from 'react-icons/fi';
 
 const BookDetails = () => {
@@ -10,7 +11,7 @@ const BookDetails = () => {
   const navigate = useNavigate();
   const { books } = useAppState();
   const { user } = useAuth();
-  
+
   const book = books.find(b => b.id.toString() === id.toString());
   const [activePreviewPage, setActivePreviewPage] = useState(0);
 
@@ -34,10 +35,10 @@ const BookDetails = () => {
 
   // Check reader purchase state
   const hasPurchased = user?.purchasedBookIds?.map(String).includes(id.toString());
-  
+
   // Check if current user is the author of this book
   const isAuthor = user && book.authorId && user.id && book.authorId.toString() === user.id.toString();
-  
+
   // Author or paid readers can read
   const canRead = hasPurchased || isAuthor;
 
@@ -52,14 +53,14 @@ const BookDetails = () => {
   return (
     <div className="py-12 md:py-20 bg-brand-warmwhite min-h-screen">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
         {/* Back Link */}
         <Link to="/browse" className="inline-flex items-center text-sm font-semibold text-brand-gold hover:text-brand-darkgreen mb-10 transition-colors">
           <FiChevronLeft className="mr-1.5" /> Back to browse
         </Link>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-start">
-          
+
           {/* Left Column: Visual Cover & Purchase Card */}
           <div className="lg:col-span-5 flex flex-col items-center space-y-8">
             <div className="bg-brand-cream/45 border border-brand-darkgreen/5 rounded-3xl p-10 shadow-sm flex items-center justify-center w-full aspect-square md:aspect-auto md:h-[400px]">
@@ -82,26 +83,14 @@ const BookDetails = () => {
               </div>
 
               {canRead ? (
-                book.pdfUrl ? (
-                  <a 
-                    href={book.pdfUrl}
-                    download={`${title}.pdf`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="w-full text-center block bg-brand-gold text-brand-darkgreen hover:bg-brand-darkgreen hover:text-brand-warmwhite text-sm font-semibold py-3.5 rounded-xl shadow-md transition-all duration-300"
-                  >
-                    {isAuthor ? "Download Manuscript (PDF)" : "Download Ebook (PDF)"}
-                  </a>
-                ) : (
-                  <button 
-                    onClick={() => setIsReading(true)}
-                    className="w-full text-center block bg-brand-gold text-brand-darkgreen hover:bg-brand-darkgreen hover:text-brand-warmwhite text-sm font-semibold py-3.5 rounded-xl shadow-md transition-all duration-300"
-                  >
-                    Read Preview Pages
-                  </button>
-                )
+                <button
+                  onClick={() => setIsReading(true)}
+                  className="w-full text-center block bg-brand-gold text-brand-darkgreen hover:bg-brand-darkgreen hover:text-brand-warmwhite text-sm font-semibold py-3.5 rounded-xl shadow-md transition-all duration-300"
+                >
+                  {isAuthor ? "Read Manuscript" : "Read Ebook"}
+                </button>
               ) : (
-                <button 
+                <button
                   onClick={handleBuyNow}
                   className="w-full bg-brand-darkgreen text-brand-warmwhite hover:bg-brand-gold hover:text-brand-darkgreen text-sm font-semibold py-3.5 rounded-xl shadow-lg transition-all duration-300"
                 >
@@ -110,7 +99,7 @@ const BookDetails = () => {
               )}
 
               <p className="text-[11px] text-center text-brand-charcoal/50 mt-4 leading-relaxed font-light">
-                {isAuthor ? "You own this title." : "Instant delivery. Read in-browser or download the PDF file to your device."}
+                {isAuthor ? "You own this title." : "Instant access. Read directly in-browser using our premium immersive reader."}
               </p>
             </div>
           </div>
@@ -132,10 +121,10 @@ const BookDetails = () => {
               <h1 className="text-3xl sm:text-4xl font-serif font-black text-brand-darkgreen leading-tight">
                 {title}
               </h1>
-              
+
               <div className="flex items-center gap-3 flex-wrap">
                 <p className="text-lg text-brand-charcoal/70">
-                  by <Link to={`/browse?author=${encodeURIComponent(authorName)}`} className="text-brand-darkgreen hover:text-brand-gold underline decoration-brand-gold/30 font-semibold">{authorName}</Link>
+                  by <Link to={`/publisher/${book.authorId}`} className="text-brand-darkgreen hover:text-brand-gold underline decoration-brand-gold/30 font-semibold">{authorName}</Link>
                 </p>
                 {book.authorWhatsapp && (
                   <a
@@ -164,7 +153,7 @@ const BookDetails = () => {
                   <FiBookOpen className="text-brand-gold mr-2 text-base" /> Look Inside (Sample Pages)
                 </h4>
                 <div className="flex items-center space-x-1">
-                  <button 
+                  <button
                     disabled={activePreviewPage === 0}
                     onClick={() => setActivePreviewPage(p => Math.max(0, p - 1))}
                     className="p-1 rounded bg-brand-cream/50 border border-brand-darkgreen/10 text-brand-darkgreen hover:bg-brand-cream disabled:opacity-30 disabled:cursor-not-allowed"
@@ -174,7 +163,7 @@ const BookDetails = () => {
                   <span className="text-xs text-brand-charcoal/60 px-2 font-medium">
                     {activePreviewPage + 1} / {previewPages?.length || 1}
                   </span>
-                  <button 
+                  <button
                     disabled={activePreviewPage === (previewPages?.length || 1) - 1}
                     onClick={() => setActivePreviewPage(p => Math.min((previewPages?.length || 1) - 1, p + 1))}
                     className="p-1 rounded bg-brand-cream/50 border border-brand-darkgreen/10 text-brand-darkgreen hover:bg-brand-cream disabled:opacity-30 disabled:cursor-not-allowed"
@@ -213,15 +202,15 @@ const BookDetails = () => {
               </span>
               <h2 className="font-serif font-bold text-sm truncate max-w-xs sm:max-w-md">{title}</h2>
             </div>
-            
+
             <div className="flex items-center space-x-4">
-              <button 
+              <button
                 onClick={() => setThemeMode(t => t === 'warm' ? 'dark' : 'warm')}
                 className="p-2 border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
               >
                 {themeMode === 'warm' ? <FiMoon /> : <FiSun className="text-brand-gold" />}
               </button>
-              <button 
+              <button
                 onClick={() => setIsReading(false)}
                 className="p-2 border border-white/10 rounded-lg hover:bg-red-600/10 hover:text-red-400 transition-colors"
               >
@@ -232,14 +221,12 @@ const BookDetails = () => {
 
           <div className="flex-grow w-full h-[calc(100vh-4rem)] p-4 md:p-8 flex items-center justify-center">
             {book.pdfUrl ? (
-              <iframe 
-                src={`${book.pdfUrl}#toolbar=0&navpanes=0`} 
-                className="w-full max-w-4xl h-full border border-white/10 rounded-2xl bg-white shadow-2xl" 
-                title={title}
-              />
+              <div className="w-full max-w-7xl h-full flex items-center justify-center">
+                <PdfReader pdfUrl={book.pdfUrl} themeMode={themeMode} />
+              </div>
             ) : (
               <div className="flex items-center justify-center w-full">
-                <button 
+                <button
                   disabled={readingPage === 0}
                   onClick={() => setReadingPage(p => Math.max(0, p - 1))}
                   className="p-3 rounded-full hover:bg-black/10 disabled:opacity-20 transition-all text-2xl"
@@ -247,9 +234,8 @@ const BookDetails = () => {
                   <FiChevronLeft />
                 </button>
 
-                <div className={`w-full max-w-2xl aspect-[3/4] md:aspect-auto md:h-[600px] mx-4 rounded-xl shadow-2xl p-8 md:p-14 flex flex-col justify-between border transition-all ${
-                  themeMode === 'warm' ? 'bg-[#FCFAF2] border-amber-900/10' : 'bg-zinc-900 border-zinc-800'
-                }`}>
+                <div className={`w-full max-w-2xl aspect-[3/4] md:aspect-auto md:h-[600px] mx-4 rounded-xl shadow-2xl p-8 md:p-14 flex flex-col justify-between border transition-all ${themeMode === 'warm' ? 'bg-[#FCFAF2] border-amber-900/10' : 'bg-zinc-900 border-zinc-800'
+                  }`}>
                   <div className="flex justify-between items-center border-b border-brand-darkgreen/5 pb-3">
                     <span className="text-[10px] tracking-wider uppercase font-semibold opacity-50">{category}</span>
                     <span className="text-[10px] italic opacity-50">{authorName}</span>
@@ -266,7 +252,7 @@ const BookDetails = () => {
                   </div>
                 </div>
 
-                <button 
+                <button
                   disabled={previewPages && readingPage === previewPages.length - 1}
                   onClick={() => setReadingPage(p => Math.min((previewPages?.length || 1) - 1, p + 1))}
                   className="p-3 rounded-full hover:bg-black/10 disabled:opacity-20 transition-all text-2xl"

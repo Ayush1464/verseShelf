@@ -7,12 +7,27 @@ const ReaderProfile = () => {
   
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
-  const [avatar, setAvatar] = useState(user?.avatar || '');
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || '');
+  const [avatarFile, setAvatarFile] = useState(null);
   const [success, setSuccess] = useState(false);
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setAvatarFile(file);
+      setAvatarPreview(URL.createObjectURL(file));
+    }
+  };
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    updateProfile({ name, email, avatar });
+    const formData = new FormData();
+    formData.append('name', name);
+    formData.append('email', email);
+    if (avatarFile) {
+      formData.append('avatarImage', avatarFile);
+    }
+    updateProfile(formData);
     setSuccess(true);
     setTimeout(() => setSuccess(false), 3000);
   };
@@ -39,18 +54,17 @@ const ReaderProfile = () => {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div className="flex flex-col sm:flex-row items-center gap-6 pb-6 border-b border-brand-cream">
             <img 
-              src={avatar || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80"} 
+              src={avatarPreview || "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=150&h=150&q=80"} 
               alt={name} 
               className="w-20 h-20 rounded-full object-cover border-2 border-brand-gold shadow"
             />
             <div className="w-full">
-              <label className="text-[10px] font-semibold uppercase tracking-wider text-brand-charcoal/50 block mb-1.5">Avatar URL</label>
+              <label className="text-[10px] font-semibold uppercase tracking-wider text-brand-charcoal/50 block mb-1.5">Upload Profile Picture</label>
               <input
-                type="text"
-                value={avatar}
-                onChange={(e) => setAvatar(e.target.value)}
-                className="w-full bg-brand-cream/35 border border-brand-darkgreen/15 rounded-xl py-2 px-3 text-xs focus:outline-none focus:ring-1 focus:ring-brand-gold"
-                placeholder="Image URL"
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarChange}
+                className="w-full text-xs text-brand-charcoal/65 file:mr-4 file:py-2 file:px-4 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-brand-cream/60 file:text-brand-darkgreen hover:file:bg-brand-cream"
               />
             </div>
           </div>

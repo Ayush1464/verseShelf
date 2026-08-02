@@ -46,8 +46,16 @@ const DashboardLayout = ({ children }) => {
           { name: 'Withdraw Requests', path: '/admin/withdrawals', icon: <FiCreditCard /> },
           { name: 'Commission Settings', path: '/admin/commissions', icon: <FiSettings /> },
           { name: 'Manage Authors', path: '/admin/authors', icon: <FiActivity /> },
+          { name: 'Manage Publishers', path: '/admin/publishers', icon: <FiBookOpen /> },
           { name: 'Manage Users', path: '/admin/users', icon: <FiUsers /> },
           { name: 'All Orders', path: '/admin/orders', icon: <FiFileText /> },
+        ];
+      case 'publisher':
+        return [
+          { name: 'Console Overview', path: '/publisher/dashboard', icon: <FiGrid /> },
+          { name: 'Publish Booklet', path: '/publisher/upload', icon: <FiUploadCloud /> },
+          { name: 'Booklet Catalog', path: '/publisher/books', icon: <FiBook /> },
+          { name: 'Profile Settings', path: '/publisher/profile', icon: <FiUser /> },
         ];
       default:
         return [];

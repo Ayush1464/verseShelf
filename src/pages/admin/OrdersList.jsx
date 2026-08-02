@@ -24,6 +24,7 @@ const OrdersList = () => {
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Book Name</th>
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Reader</th>
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Author</th>
+                  <th className="p-4 font-semibold text-xs uppercase tracking-wider">Format</th>
                   <th className="p-4 font-semibold text-xs text-right uppercase tracking-wider">Price</th>
                   <th className="p-4 font-semibold text-xs text-right text-red-600 uppercase tracking-wider">Commission</th>
                   <th className="p-4 font-semibold text-xs text-right text-emerald-600 uppercase tracking-wider">Author Royalty</th>
@@ -37,6 +38,19 @@ const OrdersList = () => {
                     <td className="p-4 font-serif font-bold text-brand-darkgreen">{order.bookTitle}</td>
                     <td className="p-4">{order.readerName}</td>
                     <td className="p-4">{order.authorName}</td>
+                    <td className="p-4">
+                      <div className="flex flex-col space-y-1">
+                        <span className="font-semibold text-xs text-brand-darkgreen bg-brand-cream/40 px-2 py-0.5 rounded border border-brand-darkgreen/5 inline-block w-fit">
+                          {order.isPhysical ? "📦 Physical Copy" : "📱 Digital Ebook"}
+                        </span>
+                        {order.isPhysical && order.shippingAddress && (
+                          <div className="text-[10px] text-zinc-700 bg-amber-50/70 border border-amber-200/50 p-2 rounded-lg mt-1 whitespace-pre-wrap max-w-[220px] font-normal leading-relaxed shadow-sm">
+                            <strong className="text-amber-800 font-bold block mb-0.5">SHIPPING ADDRESS:</strong>
+                            {order.shippingAddress}
+                          </div>
+                        )}
+                      </div>
+                    </td>
                     <td className="p-4 text-right">₹{order.price}</td>
                     <td className="p-4 text-right text-red-500 font-medium">-₹{order.commission}</td>
                     <td className="p-4 text-right text-emerald-600 font-bold">₹{order.earnings}</td>

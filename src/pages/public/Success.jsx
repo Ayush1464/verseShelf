@@ -5,6 +5,7 @@ import { FiCheckCircle, FiBookOpen, FiArrowRight } from 'react-icons/fi';
 const Success = () => {
   const [searchParams] = useSearchParams();
   const orderId = searchParams.get('orderId') || `ord-${Date.now()}`;
+  const isPhysical = searchParams.get('isPhysical') === 'true';
 
   return (
     <div className="min-h-[85vh] bg-brand-warmwhite flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
@@ -19,7 +20,9 @@ const Success = () => {
           <span className="text-[10px] uppercase font-semibold text-brand-gold tracking-widest bg-brand-gold/10 px-2.5 py-1 rounded border border-brand-gold/10">Payment Successful</span>
           <h1 className="text-3xl font-serif font-black text-brand-darkgreen">Thank you for your purchase</h1>
           <p className="text-sm font-light text-brand-charcoal/60 leading-relaxed">
-            Your transaction has been processed successfully. The poetry manuscript has been added to your digital library shelf.
+            {isPhysical 
+              ? "Your transaction has been processed successfully. Your physical hardcopy book order is placed and will be shipped to your address."
+              : "Your transaction has been processed successfully. The poetry manuscript has been added to your digital library shelf."}
           </p>
         </div>
 
@@ -31,7 +34,9 @@ const Success = () => {
           </div>
           <div className="flex justify-between">
             <span className="text-brand-charcoal/50">Delivery Method</span>
-            <span className="font-semibold text-brand-darkgreen">Instant Ebook (PDF)</span>
+            <span className="font-semibold text-brand-darkgreen">
+              {isPhysical ? "Physical Hardcopy (Shipped)" : "Instant Ebook (PDF)"}
+            </span>
           </div>
         </div>
 

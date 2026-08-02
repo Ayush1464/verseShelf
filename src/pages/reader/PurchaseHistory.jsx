@@ -31,6 +31,7 @@ const PurchaseHistory = () => {
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Order ID</th>
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Book Title</th>
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Author</th>
+                  <th className="p-4 font-semibold text-xs uppercase tracking-wider">Format</th>
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Date</th>
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Amount Paid</th>
                   <th className="p-4 font-semibold text-xs uppercase tracking-wider">Status</th>
@@ -42,6 +43,18 @@ const PurchaseHistory = () => {
                     <td className="p-4 font-mono text-xs font-semibold">{order.id}</td>
                     <td className="p-4 font-serif font-bold text-brand-darkgreen">{order.bookTitle}</td>
                     <td className="p-4">{order.authorName}</td>
+                    <td className="p-4">
+                      <div className="flex flex-col">
+                        <span className="font-semibold text-xs text-brand-darkgreen">
+                          {order.isPhysical ? "Physical Hardcopy" : "Digital Ebook"}
+                        </span>
+                        {order.isPhysical && order.shippingAddress && (
+                          <span className="text-[10px] text-brand-charcoal/50 font-light mt-0.5 max-w-[200px] truncate" title={order.shippingAddress}>
+                            Addr: {order.shippingAddress}
+                          </span>
+                        )}
+                      </div>
+                    </td>
                     <td className="p-4 text-xs font-light">{order.date}</td>
                     <td className="p-4 font-bold">₹{order.price}</td>
                     <td className="p-4">

@@ -8,6 +8,8 @@ export const AppStateProvider = ({ children }) => {
   const [orders, setOrders] = useState([]);
   const [withdrawals, setWithdrawals] = useState([]);
   const [commissionRate, setCommissionRate] = useState(20);
+  const [physicalSurcharge, setPhysicalSurcharge] = useState(150);
+  const [publishers, setPublishers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   // Fetch all initial configurations from Django API on mount
@@ -15,17 +17,20 @@ export const AppStateProvider = ({ children }) => {
     try {
       setLoading(true);
       
-      const [booksRes, ordersRes, withdrawalsRes, settingsRes] = await Promise.all([
+      const [booksRes, ordersRes, withdrawalsRes, settingsRes, publishersRes] = await Promise.all([
         API.get('/books/'),
         API.get('/orders/'),
         API.get('/withdrawals/'),
-        API.get('/settings/')
+        API.get('/settings/'),
+        API.get('/publishers/')
       ]);
 
       setBooks(booksRes.data);
       setOrders(ordersRes.data);
       setWithdrawals(withdrawalsRes.data);
       setCommissionRate(settingsRes.data.commission_rate);
+      setPhysicalSurcharge(Number(settingsRes.data.physicalSurcharge || 150));
+      setPublishers(publishersRes.data);
     } catch (error) {
       console.error("Error loading VerseShelf state from server:", error);
     } finally {
@@ -121,6 +126,8 @@ export const AppStateProvider = ({ children }) => {
       orders,
       withdrawals,
       commissionRate,
+      physicalSurcharge,
+      publishers,
       loading,
       addBook,
       approveBook,

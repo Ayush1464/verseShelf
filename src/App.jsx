@@ -12,6 +12,7 @@ import DashboardLayout from './layouts/DashboardLayout';
 import LandingPage from './pages/public/LandingPage';
 import BrowseBooks from './pages/public/BrowseBooks';
 import BookDetails from './pages/public/BookDetails';
+import PublisherPage from './pages/public/PublisherPage';
 import SearchResults from './pages/public/SearchResults';
 import Login from './pages/public/Login';
 import Register from './pages/public/Register';
@@ -33,6 +34,11 @@ import SalesHistory from './pages/author/SalesHistory';
 import Withdrawal from './pages/author/Withdrawal';
 import AuthorProfile from './pages/author/AuthorProfile';
 
+// Publisher Pages
+import PublisherDashboard from './pages/publisher/PublisherDashboard';
+import PublisherUploadBook from './pages/publisher/PublisherUploadBook';
+import PublisherManageBooks from './pages/publisher/PublisherManageBooks';
+
 // Admin Pages
 import AdminDashboard from './pages/admin/AdminDashboard';
 import AdminBooks from './pages/admin/AdminBooks';
@@ -41,6 +47,7 @@ import CommissionSettings from './pages/admin/CommissionSettings';
 import AuthorsList from './pages/admin/AuthorsList';
 import UsersList from './pages/admin/UsersList';
 import OrdersList from './pages/admin/OrdersList';
+import PublishersList from './pages/admin/PublishersList';
 
 const App = () => {
   return (
@@ -53,6 +60,7 @@ const App = () => {
             <Route path="/" element={<MainLayout><LandingPage /></MainLayout>} />
             <Route path="/browse" element={<MainLayout><BrowseBooks /></MainLayout>} />
             <Route path="/book/:id" element={<MainLayout><BookDetails /></MainLayout>} />
+            <Route path="/publisher/:id" element={<MainLayout><PublisherPage /></MainLayout>} />
             <Route path="/search" element={<MainLayout><SearchResults /></MainLayout>} />
             <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
             <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
@@ -124,6 +132,28 @@ const App = () => {
               </ProtectedRoute>
             } />
 
+            {/* PUBLISHER PRIVATE ROUTES (DashboardLayout) */}
+            <Route path="/publisher/dashboard" element={
+              <ProtectedRoute allowedRoles={['publisher']}>
+                <DashboardLayout><PublisherDashboard /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/publisher/upload" element={
+              <ProtectedRoute allowedRoles={['publisher']}>
+                <DashboardLayout><PublisherUploadBook /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/publisher/books" element={
+              <ProtectedRoute allowedRoles={['publisher']}>
+                <DashboardLayout><PublisherManageBooks /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/publisher/profile" element={
+              <ProtectedRoute allowedRoles={['publisher']}>
+                <DashboardLayout><AuthorProfile /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+
             {/* ADMIN PRIVATE ROUTES (DashboardLayout) */}
             <Route path="/admin/dashboard" element={
               <ProtectedRoute allowedRoles={['admin']}>
@@ -148,6 +178,11 @@ const App = () => {
             <Route path="/admin/authors" element={
               <ProtectedRoute allowedRoles={['admin']}>
                 <DashboardLayout><AuthorsList /></DashboardLayout>
+              </ProtectedRoute>
+            } />
+            <Route path="/admin/publishers" element={
+              <ProtectedRoute allowedRoles={['admin']}>
+                <DashboardLayout><PublishersList /></DashboardLayout>
               </ProtectedRoute>
             } />
             <Route path="/admin/users" element={

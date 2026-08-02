@@ -2,16 +2,17 @@ import React, { useState } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { useAppState } from '../../context/AppStateContext';
 import BookCover from '../../components/book/BookCover';
+import PdfReader from '../../components/book/PdfReader';
 import { FiBookOpen, FiDownload, FiX, FiChevronLeft, FiChevronRight, FiMoon, FiSun } from 'react-icons/fi';
 
 const PurchasedBooks = () => {
   const { user } = useAuth();
   const { books } = useAppState();
 
-  const purchasedBooks = books.filter(book => 
+  const purchasedBooks = books.filter(book =>
     user?.purchasedBookIds?.map(String).includes(book.id.toString())
   );
-  
+
   // Reading mode states
   const [readingBook, setReadingBook] = useState(null);
   const [activePage, setActivePage] = useState(0);
@@ -40,62 +41,31 @@ const PurchasedBooks = () => {
       {purchasedBooks.length > 0 ? (
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-8">
           {purchasedBooks.map((book) => (
-            book.pdfUrl ? (
-              <a 
-                key={book.id}
-                href={book.pdfUrl}
-                download={`${book.title}.pdf`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="bg-white border border-brand-darkgreen/5 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col justify-between items-center text-center group cursor-pointer"
-              >
-                <div className="mb-4 transform transition-transform duration-300 group-hover:scale-105">
-                  <BookCover 
-                    title={book.title} 
-                    author={book.authorName} 
-                    category={book.category} 
-                    coverColor={book.coverColor} 
-                    coverImage={book.coverImage}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-serif font-bold text-sm text-brand-darkgreen line-clamp-1 group-hover:text-brand-gold transition-colors">{book.title}</h4>
-                  <p className="text-xs text-brand-charcoal/50">by {book.authorName}</p>
-                </div>
-                <div 
-                  className="mt-4 flex items-center justify-center space-x-1.5 text-[10px] font-semibold tracking-wider uppercase bg-brand-darkgreen text-brand-warmwhite hover:bg-brand-gold hover:text-brand-darkgreen w-full py-2 rounded-lg transition-colors"
-                >
-                  <FiDownload className="mr-1" />
-                  <span>Download PDF</span>
-                </div>
-              </a>
-            ) : (
-              <div 
-                key={book.id}
-                onClick={() => openReader(book)}
-                className="bg-white border border-brand-darkgreen/5 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col justify-between items-center text-center group cursor-pointer"
-              >
-                <div className="mb-4 transform transition-transform duration-300 group-hover:scale-105">
-                  <BookCover 
-                    title={book.title} 
-                    author={book.authorName} 
-                    category={book.category} 
-                    coverColor={book.coverColor} 
-                    coverImage={book.coverImage}
-                  />
-                </div>
-                <div className="space-y-1">
-                  <h4 className="font-serif font-bold text-sm text-brand-darkgreen line-clamp-1 group-hover:text-brand-gold transition-colors">{book.title}</h4>
-                  <p className="text-xs text-brand-charcoal/50">by {book.authorName}</p>
-                </div>
-                <button 
-                  className="mt-4 flex items-center justify-center space-x-1.5 text-[10px] font-semibold tracking-wider uppercase bg-brand-darkgreen text-brand-warmwhite hover:bg-brand-gold hover:text-brand-darkgreen w-full py-2 rounded-lg transition-colors"
-                >
-                  <FiBookOpen />
-                  <span>Read Preview</span>
-                </button>
+            <div
+              key={book.id}
+              onClick={() => openReader(book)}
+              className="bg-white border border-brand-darkgreen/5 rounded-2xl p-5 hover:shadow-xl transition-all duration-300 flex flex-col justify-between items-center text-center group cursor-pointer"
+            >
+              <div className="mb-4 transform transition-transform duration-300 group-hover:scale-105">
+                <BookCover
+                  title={book.title}
+                  author={book.authorName}
+                  category={book.category}
+                  coverColor={book.coverColor}
+                  coverImage={book.coverImage}
+                />
               </div>
-            )
+              <div className="space-y-1">
+                <h4 className="font-serif font-bold text-sm text-brand-darkgreen line-clamp-1 group-hover:text-brand-gold transition-colors">{book.title}</h4>
+                <p className="text-xs text-brand-charcoal/50">by {book.authorName}</p>
+              </div>
+              <button
+                className="mt-4 flex items-center justify-center space-x-1.5 text-[10px] font-semibold tracking-wider uppercase bg-brand-darkgreen text-brand-warmwhite hover:bg-brand-gold hover:text-brand-darkgreen w-full py-2 rounded-lg transition-colors"
+              >
+                <FiBookOpen className="mr-1" />
+                <span>Read Book</span>
+              </button>
+            </div>
           ))}
         </div>
       ) : (
@@ -105,7 +75,7 @@ const PurchasedBooks = () => {
           <p className="text-sm font-light text-brand-charcoal/60 mb-6">
             You haven't purchased any poetry books yet. Explore our catalog and support independent creators.
           </p>
-          <button 
+          <button
             onClick={() => window.location.href = '/browse'}
             className="bg-brand-darkgreen text-brand-warmwhite text-xs font-semibold px-6 py-2.5 rounded-full"
           >
@@ -123,28 +93,18 @@ const PurchasedBooks = () => {
               <span className="text-xs uppercase bg-brand-gold/20 text-brand-gold px-2 py-0.5 rounded border border-brand-gold/10 font-bold tracking-wide">Reading Mode</span>
               <h2 className="font-serif font-bold text-sm truncate max-w-xs sm:max-w-md">{readingBook.title}</h2>
             </div>
-            
+
             <div className="flex items-center space-x-4">
               {/* Theme toggle */}
-              <button 
+              <button
                 onClick={() => setThemeMode(t => t === 'warm' ? 'dark' : 'warm')}
                 className="p-2 border border-white/10 rounded-lg hover:bg-white/5 transition-colors"
                 title="Toggle Reading Theme"
               >
                 {themeMode === 'warm' ? <FiMoon /> : <FiSun className="text-brand-gold" />}
               </button>
-              
-              {/* Download mock PDF file */}
-              <a 
-                href={`data:application/pdf;base64,JVBERi0xLjQKJ...`} // Fake PDF file download URL for showcase
-                download={`${readingBook.title.replace(/\s+/g, '_')}_Manuscript.pdf`}
-                className="p-2 border border-white/10 rounded-lg hover:bg-white/5 transition-colors text-white hidden sm:flex items-center space-x-1.5 text-xs font-medium"
-              >
-                <FiDownload />
-                <span>Download PDF</span>
-              </a>
 
-              <button 
+              <button
                 onClick={closeReader}
                 className="p-2 border border-white/10 rounded-lg hover:bg-red-600/10 hover:text-red-400 transition-colors"
               >
@@ -156,26 +116,22 @@ const PurchasedBooks = () => {
           {/* Reader Panel View */}
           <div className="flex-grow w-full h-[calc(100vh-4rem)] p-4 md:p-8 flex items-center justify-center">
             {readingBook.pdfUrl ? (
-              <iframe 
-                src={`${readingBook.pdfUrl}#toolbar=0&navpanes=0`} 
-                className="w-full max-w-4xl h-full border border-white/10 rounded-2xl bg-white shadow-2xl" 
-                title={readingBook.title}
-              />
+              <div className="w-full max-w-7xl h-full flex items-center justify-center">
+                <PdfReader pdfUrl={readingBook.pdfUrl} themeMode={themeMode} />
+              </div>
             ) : (
               <div className="flex items-center justify-center w-full">
-                <button 
+                <button
                   disabled={activePage === 0}
                   onClick={() => setActivePage(p => Math.max(0, p - 1))}
-                  className={`p-3 rounded-full hover:bg-black/10 disabled:opacity-20 disabled:pointer-events-none transition-all ${
-                    themeMode === 'warm' ? 'text-zinc-800' : 'text-white'
-                  }`}
+                  className={`p-3 rounded-full hover:bg-black/10 disabled:opacity-20 disabled:pointer-events-none transition-all ${themeMode === 'warm' ? 'text-zinc-800' : 'text-white'
+                    }`}
                 >
                   <FiChevronLeft className="text-3xl" />
                 </button>
 
-                <div className={`w-full max-w-2xl aspect-[3/4] md:aspect-auto md:h-[650px] mx-4 rounded-xl shadow-2xl p-8 md:p-14 flex flex-col justify-between border transition-all ${
-                  themeMode === 'warm' ? 'bg-[#FCFAF2] border-amber-900/10' : 'bg-zinc-900 border-zinc-800'
-                }`}>
+                <div className={`w-full max-w-2xl aspect-[3/4] md:aspect-auto md:h-[650px] mx-4 rounded-xl shadow-2xl p-8 md:p-14 flex flex-col justify-between border transition-all ${themeMode === 'warm' ? 'bg-[#FCFAF2] border-amber-900/10' : 'bg-zinc-900 border-zinc-800'
+                  }`}>
                   <div className="flex justify-between items-center border-b border-brand-darkgreen/5 pb-3">
                     <span className="text-[10px] tracking-wider uppercase font-semibold opacity-50">{readingBook.category}</span>
                     <span className="text-[10px] italic opacity-50">{readingBook.authorName}</span>
@@ -192,12 +148,11 @@ const PurchasedBooks = () => {
                   </div>
                 </div>
 
-                <button 
+                <button
                   disabled={activePage === readingBook.previewPages.length - 1}
                   onClick={() => setActivePage(p => Math.min(readingBook.previewPages.length - 1, p + 1))}
-                  className={`p-3 rounded-full hover:bg-black/10 disabled:opacity-20 disabled:pointer-events-none transition-all ${
-                    themeMode === 'warm' ? 'text-zinc-800' : 'text-white'
-                  }`}
+                  className={`p-3 rounded-full hover:bg-black/10 disabled:opacity-20 disabled:pointer-events-none transition-all ${themeMode === 'warm' ? 'text-zinc-800' : 'text-white'
+                    }`}
                 >
                   <FiChevronRight className="text-3xl" />
                 </button>

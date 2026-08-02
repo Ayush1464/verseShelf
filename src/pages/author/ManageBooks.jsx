@@ -56,7 +56,10 @@ const ManageBooks = () => {
                         <span>Pending Review</span>
                       </span>
                     )}
-                    <span className="text-xs font-bold text-brand-darkgreen bg-brand-cream/50 px-2 py-0.5 rounded font-sans">₹{book.price}</span>
+                    <span className="text-[10px] font-bold text-brand-darkgreen bg-brand-cream/50 px-2 py-0.5 rounded font-sans">Ebook: ₹{book.price}</span>
+                    {book.physicalPrice && (
+                      <span className="text-[10px] font-bold text-amber-800 bg-amber-50 px-2 py-0.5 rounded font-sans border border-amber-200/50">Physical: ₹{book.physicalPrice}</span>
+                    )}
                   </div>
                 </div>
 

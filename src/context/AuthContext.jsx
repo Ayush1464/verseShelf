@@ -16,12 +16,32 @@ export const AuthProvider = ({ children }) => {
         password,
         role
       });
+      const data = response.data;
+      if (data.mfa_required) {
+        return data;
+      }
+      setUser(data);
+      localStorage.setItem('verseshelf_user', JSON.stringify(data));
+      return data;
+    } catch (error) {
+      console.error("Login failed:", error);
+      throw error;
+    }
+  };
+
+  const verifyOtp = async (email, role, otp) => {
+    try {
+      const response = await API.post('/auth/verify-otp/', {
+        email,
+        role,
+        otp
+      });
       const userData = response.data;
       setUser(userData);
       localStorage.setItem('verseshelf_user', JSON.stringify(userData));
       return userData;
     } catch (error) {
-      console.error("Login failed:", error);
+      console.error("OTP verification failed:", error);
       throw error;
     }
   };
@@ -52,10 +72,22 @@ export const AuthProvider = ({ children }) => {
   const updateProfile = async (updatedFields) => {
     if (!user) return;
     try {
-      const response = await API.put('/auth/profile/', {
-        id: user.id,
-        ...updatedFields
-      });
+      let response;
+      if (updatedFields instanceof FormData) {
+        if (!updatedFields.has('id')) {
+          updatedFields.append('id', user.id);
+        }
+        response = await API.put('/auth/profile/', updatedFields, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        });
+      } else {
+        response = await API.put('/auth/profile/', {
+          id: user.id,
+          ...updatedFields
+        });
+      }
       const updatedUser = response.data;
       setUser(updatedUser);
       localStorage.setItem('verseshelf_user', JSON.stringify(updatedUser));
@@ -96,6 +128,7 @@ export const AuthProvider = ({ children }) => {
       user, 
       role: user?.role || null, 
       login, 
+      verifyOtp,
       register, 
       logout, 
       updateProfile, 

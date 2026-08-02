@@ -11,12 +11,12 @@ const Register = () => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState(searchParams.get('role') === 'author' ? 'author' : 'reader');
+  const [role, setRole] = useState(searchParams.get('role') === 'author' ? 'author' : (searchParams.get('role') === 'publisher' ? 'publisher' : 'reader'));
   const [error, setError] = useState('');
 
   useEffect(() => {
     const urlRole = searchParams.get('role');
-    if (urlRole === 'author' || urlRole === 'reader') {
+    if (urlRole === 'author' || urlRole === 'reader' || urlRole === 'publisher') {
       setRole(urlRole);
     }
   }, [searchParams]);
@@ -52,30 +52,42 @@ const Register = () => {
         </div>
 
         {/* Role Toggle Selector */}
-        <div className="bg-brand-cream/45 p-1 rounded-xl grid grid-cols-2 gap-1 border border-brand-darkgreen/5">
+        <div className="bg-brand-cream/45 p-1 rounded-xl grid grid-cols-3 gap-1 border border-brand-darkgreen/5">
           <button
             type="button"
             onClick={() => setRole('reader')}
-            className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+            className={`py-2 text-[10px] font-semibold rounded-lg transition-all flex items-center justify-center space-x-1 ${
               role === 'reader' 
                 ? 'bg-brand-darkgreen text-brand-warmwhite shadow' 
                 : 'text-brand-charcoal/70 hover:text-brand-darkgreen'
             }`}
           >
-            <FiBookOpen />
+            <FiUser className="text-[10px]" />
             <span>Join as Reader</span>
           </button>
           <button
             type="button"
             onClick={() => setRole('author')}
-            className={`py-2.5 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
+            className={`py-2 text-[10px] font-semibold rounded-lg transition-all flex items-center justify-center space-x-1 ${
               role === 'author' 
                 ? 'bg-brand-darkgreen text-brand-warmwhite shadow' 
                 : 'text-brand-charcoal/70 hover:text-brand-darkgreen'
             }`}
           >
-            <FiEdit3 />
+            <FiEdit3 className="text-[10px]" />
             <span>Join as Author</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => setRole('publisher')}
+            className={`py-2 text-[10px] font-semibold rounded-lg transition-all flex items-center justify-center space-x-1 ${
+              role === 'publisher' 
+                ? 'bg-brand-darkgreen text-brand-warmwhite shadow' 
+                : 'text-brand-charcoal/70 hover:text-brand-darkgreen'
+            }`}
+          >
+            <FiBookOpen className="text-[10px]" />
+            <span>Join as Publisher</span>
           </button>
         </div>
 

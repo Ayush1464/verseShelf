@@ -311,7 +311,7 @@ RESEND_API_KEY = os.getenv("RESEND_API_KEY")
 
 if RESEND_API_KEY:
     EMAIL_BACKEND = 'verseshelf_backend.email_backends.ResendEmailBackend'
-    RESEND_FROM_EMAIL = 'VerseShelf Security <onboarding@resend.dev>'
+    RESEND_FROM_EMAIL = 'onboarding@resend.dev'
     DEFAULT_FROM_EMAIL = RESEND_FROM_EMAIL
 else:
     EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

@@ -18,7 +18,7 @@ class ResendEmailBackend(BaseEmailBackend):
             try:
                 for recipient in message.to:
                     payload = {
-                        "from": getattr(settings, 'RESEND_FROM_EMAIL', 'VerseShelf <onboarding@resend.dev>'),
+                        "from": getattr(settings, 'RESEND_FROM_EMAIL', 'onboarding@resend.dev'),
                         "to": recipient,
                         "subject": message.subject,
                         "text": message.body,

@@ -1,17 +1,30 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMail, FiArrowLeft, FiCheckCircle } from 'react-icons/fi';
+import API from '../../api';
 
 const ForgotPassword = () => {
   const [email, setEmail] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (email) {
+    if (!email) return;
+
+    setLoading(true);
+    setError('');
+    try {
+      await API.post('/auth/forgot-password/', { email });
       setSubmitted(true);
+    } catch (err) {
+      setError(err.response?.data?.error || 'Something went wrong. Please try again.');
+    } finally {
+      setLoading(false);
     }
   };
+
 
   return (
     <div className="min-h-[75vh] flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8 bg-brand-warmwhite">
@@ -27,6 +40,11 @@ const ForgotPassword = () => {
             </div>
 
             <form onSubmit={handleSubmit} className="space-y-6">
+              {error && (
+                <div className="bg-red-50 border border-red-200 text-red-600 rounded-xl p-3 text-xs text-center font-medium">
+                  {error}
+                </div>
+              )}
               <div>
                 <label htmlFor="email" className="text-xs font-semibold uppercase tracking-wider text-brand-charcoal/60 block mb-1.5">Email Address</label>
                 <div className="relative">
@@ -45,9 +63,10 @@ const ForgotPassword = () => {
 
               <button
                 type="submit"
-                className="w-full bg-brand-darkgreen text-brand-warmwhite hover:bg-brand-gold hover:text-brand-darkgreen font-semibold py-3.5 rounded-xl transition-all duration-300"
+                disabled={loading}
+                className="w-full bg-brand-darkgreen text-brand-warmwhite hover:bg-brand-gold hover:text-brand-darkgreen font-semibold py-3.5 rounded-xl transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send Password Reset Link
+                {loading ? 'Sending...' : 'Send Password Reset Link'}
               </button>
 
               <div className="text-center">

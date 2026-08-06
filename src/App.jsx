@@ -17,6 +17,7 @@ import SearchResults from './pages/public/SearchResults';
 import Login from './pages/public/Login';
 import Register from './pages/public/Register';
 import ForgotPassword from './pages/public/ForgotPassword';
+import ResetPassword from './pages/public/ResetPassword';
 import Checkout from './pages/public/Checkout';
 import Success from './pages/public/Success';
 
@@ -65,6 +66,7 @@ const App = () => {
             <Route path="/login" element={<MainLayout><Login /></MainLayout>} />
             <Route path="/register" element={<MainLayout><Register /></MainLayout>} />
             <Route path="/forgot-password" element={<MainLayout><ForgotPassword /></MainLayout>} />
+            <Route path="/reset-password" element={<MainLayout><ResetPassword /></MainLayout>} />
             
             {/* Checkout & Success Flow */}
             <Route path="/checkout/:bookId" element={

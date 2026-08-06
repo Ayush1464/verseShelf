@@ -148,6 +148,71 @@ def register_view(req):
     serializer = UserSerializer(user)
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.core.mail import send_mail
+
+@csrf_exempt
+@api_view(['POST'])
+def forgot_password_view(req):
+    email = req.data.get('email')
+    if not email:
+        return Response({"error": "Email is required"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    user = User.objects.filter(email=email).first()
+    if not user:
+        return Response({"message": "If this email is registered, a password reset link has been sent."}, status=status.HTTP_200_OK)
+        
+    token = default_token_generator.make_token(user)
+    uidb64 = urlsafe_base64_encode(force_bytes(user.pk))
+    
+    frontend_url = "https://verse-shelf-kfx9zlz9v-ayush-mahapatra-s-projects.vercel.app"
+    origin = req.headers.get('Origin')
+    if origin and ('localhost' in origin or '127.0.0.1' in origin):
+        frontend_url = origin
+        
+    reset_link = f"{frontend_url}/reset-password?uid={uidb64}&token={token}"
+    
+    try:
+        send_mail(
+            subject="Reset Your VerseShelf Password",
+            message=f"Please click the following link to reset your password:\n\n{reset_link}\n\nIf you did not request this, please ignore this email.",
+            from_email=settings.DEFAULT_FROM_EMAIL,
+            recipient_list=[email],
+            fail_silently=False,
+        )
+    except Exception as e:
+        print("Failed to send reset email:", e)
+        return Response({"error": "Failed to send reset email. Please try again later."}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    return Response({"message": "If this email is registered, a password reset link has been sent."}, status=status.HTTP_200_OK)
+
+@csrf_exempt
+@api_view(['POST'])
+def reset_password_view(req):
+    uidb64 = req.data.get('uid')
+    token = req.data.get('token')
+    new_password = req.data.get('password')
+    
+    if not uidb64 or not token or not new_password:
+        return Response({"error": "Invalid reset link or password data"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        user = User.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, User.DoesNotExist):
+        return Response({"error": "Invalid user or reset token"}, status=status.HTTP_400_BAD_REQUEST)
+        
+    if not default_token_generator.check_token(user, token):
+        return Response({"error": "The reset link is invalid or has expired."}, status=status.HTTP_400_BAD_REQUEST)
+        
+    user.set_password(new_password)
+    user.save()
+    
+    return Response({"message": "Password has been reset successfully."}, status=status.HTTP_200_OK)
+
+
 @csrf_exempt
 @api_view(['PUT'])
 def update_profile(req):

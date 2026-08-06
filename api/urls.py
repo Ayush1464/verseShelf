@@ -7,6 +7,8 @@ urlpatterns = [
     path('auth/register/', views.register_view, name='register'),
     path('auth/verify-otp/', views.verify_otp_view, name='verify_otp'),
     path('auth/profile/', views.update_profile, name='update_profile'),
+    path('auth/forgot-password/', views.forgot_password_view, name='forgot_password'),
+    path('auth/reset-password/', views.reset_password_view, name='reset_password'),
     
     # Global Settings
     path('settings/', views.settings_view, name='settings'),

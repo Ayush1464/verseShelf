@@ -306,11 +306,21 @@ RAZORPAY_KEY_ID = os.getenv("RAZORPAY_KEY_ID")
 
 RAZORPAY_KEY_SECRET = os.getenv("RAZORPAY_KEY_SECRET")
 
-# Email Configuration (Uses console backend for local testing, can be easily changed to SMTP)
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
-EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
-DEFAULT_FROM_EMAIL = 'VerseShelf Security <security@verseshelf.com>'
+# Email Configuration
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
+
+if RESEND_API_KEY:
+    EMAIL_BACKEND = 'verseshelf_backend.email_backends.ResendEmailBackend'
+    RESEND_FROM_EMAIL = 'VerseShelf Security <onboarding@resend.dev>'
+    DEFAULT_FROM_EMAIL = RESEND_FROM_EMAIL
+else:
+    EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+    EMAIL_HOST = 'smtp.gmail.com'
+    EMAIL_PORT = 587
+    EMAIL_USE_TLS = True
+    EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+    EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")
+    DEFAULT_FROM_EMAIL = 'VerseShelf Security <security@verseshelf.com>'
+
+EMAIL_TIMEOUT = 5
+
